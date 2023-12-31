@@ -1,25 +1,47 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState, useEffect } from "react";
 
-function App() {
+export const App = () => {
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(
+          "https://s3.amazonaws.com/open-to-cors/assignment.json"
+        );
+        const print = await response.json();
+
+        const productArray = Object.entries(print.products).map(
+          ([id, product]) => ({
+            id,
+            ...product,
+          })
+        );
+
+        const sortedProducts = productArray.sort(
+          (a, b) => b.popularity - a.popularity
+        );
+        setProducts(sortedProducts);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h1>Product List</h1>
+      <ul>
+        {products.map((product, index) => (
+          <li key={index}>
+            <strong>Title:</strong> {product.title},<strong>Price:</strong>{" "}
+            {product.price},<strong>Popularity:</strong>
+            {product.popularity}
+          </li>
+        ))}
+      </ul>
     </div>
   );
-}
-
+};
 export default App;
